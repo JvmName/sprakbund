@@ -1,3 +1,4 @@
+import com.google.devtools.ksp.gradle.KspAATask
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
@@ -22,22 +23,10 @@ kotlin {
     jvm {
     }
 
-//    @OptIn(ExperimentalKotlinGradlePluginApi::class)
-//    applyDefaultHierarchyTemplate {
-//        common {
-//            group("jvmCommon") {
-//                withAndroidTarget()
-//                withJvm()
-//            }
-//        }
-//    }
-
     sourceSets {
 
         commonMain {
-            kotlin {
-                srcDir("build/generated/ksp/metadata/commonMain/kotlin")
-            }
+            kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
             dependencies {
                 implementation(compose.runtime)
                 implementation(compose.foundation)
@@ -95,12 +84,6 @@ kotlin {
     }
 }
 
-dependencies {
-    add("kspCommonMainMetadata", libs.circuit.codegen)
-    add("kspAndroid", libs.circuit.codegen)
-    add("kspJvm", libs.circuit.codegen)
-}
-
 android {
     namespace = "dev.jvmname.sprakbund"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
@@ -137,7 +120,7 @@ compose.desktop {
         mainClass = "dev.jvmname.sprakbund.MainKt"
 
         nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+            targetFormats(TargetFormat.Dmg, TargetFormat.Deb)
             packageName = "dev.jvmname.sprakbund"
             packageVersion = "1.0.0"
         }
@@ -145,3 +128,15 @@ compose.desktop {
 }
 
 ksp { arg("circuit.codegen.mode", "metro") }
+
+dependencies {
+    add("kspCommonMainMetadata", libs.circuit.codegen)
+//    add("kspAndroid", libs.circuit.codegen)
+//    add("kspJvm", libs.circuit.codegen)
+}
+
+tasks.withType<KspAATask>().configureEach {
+    if (name != "kspCommonMainKotlinMetadata") {
+        dependsOn("kspCommonMainKotlinMetadata")
+    }
+}
