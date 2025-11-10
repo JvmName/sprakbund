@@ -1,5 +1,5 @@
 [versions]
-agp = "8.13.0"
+agp = "8.12.0"
 android-compileSdk = "36"
 android-minSdk = "24"
 android-targetSdk = "36"
@@ -34,7 +34,8 @@ composeHotReload = { id = "org.jetbrains.compose.hot-reload", version.ref = "com
 composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }
 composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+kotlinParcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
 
 metro = "dev.zacsweers.metro:0.7.5"
 poko = "dev.drewhamilton.poko:0.20.1"
-ksp = { id = "com.google.devtools.ksp", version = "2.3.0" }
+ksp = { id = "com.google.devtools.ksp", version = "2.3.2" }
