@@ -1,7 +1,6 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import java.util.Locale
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -9,6 +8,7 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.composeHotReload)
+    alias(libs.plugins.kotlinParcelize)
     alias(libs.plugins.metro)
     alias(libs.plugins.poko)
     alias(libs.plugins.ksp)
@@ -22,38 +22,39 @@ kotlin {
     jvm {
     }
 
-    @OptIn(ExperimentalKotlinGradlePluginApi::class)
-    applyDefaultHierarchyTemplate {
-        common {
-            group("jvmCommon") {
-                withAndroidTarget()
-                withJvm()
-            }
-        }
-    }
+//    @OptIn(ExperimentalKotlinGradlePluginApi::class)
+//    applyDefaultHierarchyTemplate {
+//        common {
+//            group("jvmCommon") {
+//                withAndroidTarget()
+//                withJvm()
+//            }
+//        }
+//    }
 
     sourceSets {
-        commonMain.dependencies {
-            implementation(compose.runtime)
-            implementation(compose.foundation)
-            implementation(compose.material3)
-            implementation(compose.ui)
-            implementation(compose.components.resources)
-            implementation(compose.components.uiToolingPreview)
-            implementation(libs.compose.ui.util)
 
-            implementation(libs.circuit.foundation)
-            implementation(libs.circuit.overlay)
-            implementation(libs.circuitx.overlays)
-            implementation(libs.circuitx.gestureNav)
-            implementation(libs.circuit.annotations)
-        }
-        maybeCreate("jvmCommonMain").apply {
+        commonMain {
+            kotlin {
+                srcDir("build/generated/ksp/metadata/commonMain/kotlin")
+            }
             dependencies {
+                implementation(compose.runtime)
+                implementation(compose.foundation)
+                implementation(compose.material3)
+                implementation(compose.ui)
+                implementation(compose.components.uiToolingPreview)
+                implementation(libs.compose.ui.util)
+
+                implementation(libs.circuit.foundation)
+                implementation(libs.circuit.overlay)
+                implementation(libs.circuitx.overlays)
+                implementation(libs.circuitx.gestureNav)
+                implementation(libs.circuit.annotations)
+
                 implementation(compose.materialIconsExtended)
             }
         }
-
 
         androidMain.dependencies {
             implementation(compose.preview)
@@ -68,6 +69,7 @@ kotlin {
         configureEach {
             @OptIn(ExperimentalKotlinGradlePluginApi::class)
             compilerOptions {
+                progressiveMode = true
                 optIn.addAll(
                     "androidx.compose.material.ExperimentalMaterialApi",
                     "androidx.compose.material3.ExperimentalMaterial3Api",
@@ -83,7 +85,7 @@ kotlin {
                         compilerOptions {
                             freeCompilerArgs.addAll(
                                 "-P",
-                                "plugin:org.jetbrains.kotlin.parcelize:additionalAnnotation=com.slack.circuit.internal.runtime.Parcelize",
+                                "plugin:org.jetbrains.kotlin.parcelize:additionalAnnotation=dev.jvmname.sprakbund.parcel.CommonParcelize",
                             )
                         }
                     }
@@ -91,6 +93,12 @@ kotlin {
             }
         }
     }
+}
+
+dependencies {
+    add("kspCommonMainMetadata", libs.circuit.codegen)
+    add("kspAndroid", libs.circuit.codegen)
+    add("kspJvm", libs.circuit.codegen)
 }
 
 android {
@@ -103,11 +111,6 @@ android {
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
-    }
-    packaging {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-        }
     }
     buildTypes {
         getByName("release") {
@@ -141,17 +144,4 @@ compose.desktop {
     }
 }
 
-//ksp { arg("circuit.codegen.mode", "metro") }
-
-fun String.capitalizeUS() = replaceFirstChar {
-    if (it.isLowerCase()) it.titlecase(Locale.US) else it.toString()
-}
-
-val kspTargets = kotlin.targets.names.map { it.capitalizeUS() }
-
-dependencies {
-    for (target in kspTargets) {
-        val targetConfigSuffix = if (target == "Metadata") "CommonMainMetadata" else target
-        add("ksp${targetConfigSuffix}", libs.circuit.codegen)
-    }
-}
+ksp { arg("circuit.codegen.mode", "metro") }
