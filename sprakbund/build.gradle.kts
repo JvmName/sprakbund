@@ -28,12 +28,14 @@ kotlin {
         commonMain {
             kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
             dependencies {
-                implementation(compose.runtime)
-                implementation(compose.foundation)
-                implementation(compose.material3)
-                implementation(compose.ui)
-                implementation(compose.components.uiToolingPreview)
+                implementation(libs.runtime)
+                implementation(libs.foundation)
+                implementation(libs.material3)
+                implementation(libs.ui)
+                implementation(libs.ui.tooling.preview)
+                implementation(libs.compose.ui.tooling)
                 implementation(libs.compose.ui.util)
+                implementation(libs.material.icons.extended)
 
                 implementation(libs.circuit.foundation)
                 implementation(libs.circuit.overlay)
@@ -41,18 +43,16 @@ kotlin {
                 implementation(libs.circuitx.gestureNav)
                 implementation(libs.circuit.annotations)
 
-                implementation(compose.materialIconsExtended)
             }
         }
 
         androidMain.dependencies {
-            implementation(compose.preview)
+            implementation(libs.ui.tooling.preview)
             implementation(libs.androidx.activity.compose)
             implementation(libs.compose.ui.tooling)
         }
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)
-            implementation(libs.kotlinx.coroutinesSwing)
         }
 
         configureEach {
@@ -62,6 +62,7 @@ kotlin {
                 optIn.addAll(
                     "androidx.compose.material.ExperimentalMaterialApi",
                     "androidx.compose.material3.ExperimentalMaterial3Api",
+                    "androidx.compose.ui.ExperimentalComposeUiApi",
                 )
                 freeCompilerArgs.add("-Xexpect-actual-classes")
             }

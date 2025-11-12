@@ -1,5 +1,9 @@
 # Sprakbund
 
+> **noun** _linguistics_ An ensemble of language features grouped in a geographic area; similarity in grammar, vocabulary, etc.
+> 
+> German, lit.: "speech alliance" or "speech confederation".
+
 A small KMP app that
 uses [Tom Van Vleck's Pronounceable Password Generator algorithm](https://multicians.org/thvv/gpw-js.html).
 
