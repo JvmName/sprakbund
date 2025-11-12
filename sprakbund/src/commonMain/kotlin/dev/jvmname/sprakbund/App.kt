@@ -1,19 +1,20 @@
 package dev.jvmname.sprakbund
 
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import com.slack.circuit.foundation.Circuit
 import com.slack.circuit.foundation.CircuitCompositionLocals
 import com.slack.circuit.foundation.CircuitContent
-import dev.jvmname.sprakbund.ui.PasswordGeneratorScreen
-import org.jetbrains.compose.ui.tooling.preview.Preview
+import com.slack.circuit.overlay.ContentWithOverlays
+import dev.jvmname.sprakbund.ui.password.PasswordGeneratorScreen
+import dev.jvmname.sprakbund.ui.theme.SprakTheme
 
 @Composable
-@Preview
 fun App(circuit: Circuit) {
-    CircuitCompositionLocals(circuit) {
-        MaterialTheme {
-            CircuitContent(PasswordGeneratorScreen())
+    SprakTheme {
+        CircuitCompositionLocals(circuit) {
+            ContentWithOverlays {
+                CircuitContent(PasswordGeneratorScreen())
+            }
         }
     }
 }
