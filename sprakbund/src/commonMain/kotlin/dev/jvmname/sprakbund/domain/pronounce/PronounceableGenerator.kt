@@ -21,7 +21,7 @@ class PronounceableGenerator(private val trigram: Trigram) {
     *  with much less unnecessary nesting. I've also memoized it, which uses a little bit more memory but saves
     * on repeatedly calculating the exact same value for each subsequent word generation
     */
-    private val cumulativeSums: IntArray by lazy {
+    private val cumulativeSums: IntArray by lazy(LazyThreadSafetyMode.NONE) {
         var sum = 0
         IntArray(17576) { i ->
             val c1 = i / 676  // 26^2
@@ -33,7 +33,7 @@ class PronounceableGenerator(private val trigram: Trigram) {
     }
 
     //weight by sum of frequencies; TVV refers to this as "sigma" in the java code, which I liked
-    private val sigma by lazy { cumulativeSums.last() }
+    private val sigma by lazy(LazyThreadSafetyMode.NONE) { cumulativeSums.last() }
 
     fun generate(length: Int): String {
         val threshold = (random.nextDouble() * sigma).toInt()

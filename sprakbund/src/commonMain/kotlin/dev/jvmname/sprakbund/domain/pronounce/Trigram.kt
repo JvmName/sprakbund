@@ -10,7 +10,7 @@ class Trigram {
     operator fun get(i: Int, j: Int, k: Int): Int = trigram[i][j][k].toInt()
 
     // letter frequencies
-    private val trigram: Array<Array<ShortArray>> by lazy {
+    private val trigram: Array<Array<ShortArray>> by lazy(LazyThreadSafetyMode.NONE) {
         arrayOf(
             T1.a, T1.b, T1.c, T1.d, T1.e, T1.f, T1.g,
             T2.h, T2.i, T2.j, T2.k, T2.l, T2.m, T2.n,
