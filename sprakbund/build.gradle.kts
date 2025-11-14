@@ -35,14 +35,14 @@ kotlin {
                 implementation(libs.ui.tooling.preview)
                 implementation(libs.compose.ui.tooling)
                 implementation(libs.compose.ui.util)
-                implementation(libs.material.icons.extended)
+                implementation(libs.material.icons)
+                implementation(libs.kotlinx.coroutines.core)
 
                 implementation(libs.circuit.foundation)
                 implementation(libs.circuit.overlay)
                 implementation(libs.circuitx.overlays)
                 implementation(libs.circuitx.gestureNav)
                 implementation(libs.circuit.annotations)
-
             }
         }
 
@@ -50,9 +50,12 @@ kotlin {
             implementation(libs.ui.tooling.preview)
             implementation(libs.androidx.activity.compose)
             implementation(libs.compose.ui.tooling)
+            implementation(libs.kotlinx.coroutines.android)
+
         }
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)
+            implementation(libs.kotlinx.coroutines.swing)
         }
 
         configureEach {

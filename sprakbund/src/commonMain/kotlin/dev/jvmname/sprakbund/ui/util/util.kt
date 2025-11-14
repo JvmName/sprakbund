@@ -7,6 +7,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
+import java.util.Locale
 
 // https://chrisbanes.me/posts/retaining-beyond-viewmodels/
 @Composable
@@ -27,4 +28,9 @@ fun rememberRetainedCoroutineScope(): CoroutineScope {
             override fun onRemembered() = Unit
         }
     }.scope
+}
+
+/** truly the dumbest thing I've needed to write; replaces [kotlin.text.capitalize]*/
+fun String.capitalize(): String {
+    return replaceFirstChar { if(it.isLowerCase()) it.titlecase(Locale.getDefault()) else "" }
 }

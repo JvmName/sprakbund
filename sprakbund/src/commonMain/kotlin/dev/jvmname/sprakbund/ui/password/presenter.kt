@@ -36,13 +36,15 @@ class PasswordGeneratorPresenter(
         val passwordCount = screen.count
 
         val presenterScope = rememberRetainedCoroutineScope()
-        var passwordLength by remember { mutableIntStateOf(screen.length) }
-        var numWords by remember { mutableIntStateOf(screen.compoundWord) }
+        var passwordLength by remember(screen) { mutableIntStateOf(screen.length) }
+        var numWords by remember(screen) { mutableIntStateOf(screen.compoundWord) }
         var snackbarMessage: String? by remember { mutableStateOf(null) }
 
         val clipboard = LocalClipboard.current //todo this might make testing difficult
 
-        var passwords = remember { buildPasswordList(passwordCount, passwordLength, numWords) }
+        var passwords: List<String> by remember(passwordCount, passwordLength, numWords) {
+            mutableStateOf(buildPasswordList(passwordCount, passwordLength, numWords))
+        }
 
         return PasswordGeneratorState(
             passwords = passwords,
@@ -83,13 +85,10 @@ class PasswordGeneratorPresenter(
     private fun createPassword(length: Int, numWords: Int): String {
         return when (numWords) {
             1 -> generator.generate(length)
-            else -> buildString(length * numWords) {
-                repeat(numWords) {
-                    val word = generator.generate(length)
-                    append(word.capitalize())
-                }
+            else -> (0..<numWords).joinToString(separator = "-") {
+                generator.generate(length)
             }
-        }
+        }.lowercase()
     }
 
 }

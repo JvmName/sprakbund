@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.displayCutoutPadding
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.outlined.ContentCopy
@@ -22,15 +22,12 @@ import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Slider
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberSliderState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -38,7 +35,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.slack.circuit.codegen.annotations.CircuitInject
+import dev.jvmname.sprakbund.ui.common.IntSliderWithTextField
 import dev.jvmname.sprakbund.ui.theme.PasswordStyle
 import dev.jvmname.sprakbund.ui.theme.SprakTheme
 import dev.jvmname.sprakbund.ui.theme.SprakTypography
@@ -70,13 +69,17 @@ fun PasswordGeneratorUi(state: PasswordGeneratorState, modifier: Modifier = Modi
                 state.eventSink(PasswordGeneratorEvent.CopyPassword(it))
             })
             Spacer(Modifier.height(32.dp))
-            PasswordSlider(
-                passwordLength = state.passwordLength,
-                onLengthChange = { state.eventSink(PasswordGeneratorEvent.ChangeLength(it)) }
+            IntSliderWithTextField(
+                title = "Word Length:",
+                initialValue = state.passwordLength,
+                valueRange = state.passwordLengthRange,
+                onValueChange = { state.eventSink(PasswordGeneratorEvent.ChangeLength(it)) }
             )
-            CompoundWordsSlider(numCompoundWords = state.compoundWord, onNumChange = {
-                state.eventSink(PasswordGeneratorEvent.ChangeCompoundWord(it))
-            })
+            IntSliderWithTextField(
+                title = "Words in phrase:",
+                initialValue = state.compoundWord,
+                valueRange = state.compoundWordRange,
+                onValueChange = { state.eventSink(PasswordGeneratorEvent.ChangeCompoundWord(it)) })
         }
     }
 
@@ -84,67 +87,6 @@ fun PasswordGeneratorUi(state: PasswordGeneratorState, modifier: Modifier = Modi
         LaunchedEffect(state.snackbarMessage) {
             snackbarHostState.showSnackbar(state.snackbarMessage)
             state.eventSink(PasswordGeneratorEvent.SnackbarShown)
-        }
-    }
-}
-
-@Composable
-fun CompoundWordsSlider(
-    modifier: Modifier = Modifier,
-    numCompoundWords: Int,
-    onNumChange: (Int) -> Unit,
-) {
-    Column {
-        Text("Number of words in passphrase: ")
-        //TODO: top of range configurable
-        val range = numCompoundWords.toFloat()..5f
-        Row(
-            modifier = modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Text(range.start.toInt().toString(), modifier = Modifier.weight(1f))
-            var sliderPosition by remember { mutableIntStateOf(numCompoundWords) }
-            val sliderState = rememberSliderState(
-                value = numCompoundWords.toFloat(),
-                steps = (range.endInclusive - range.start).toInt(),
-                onValueChangeFinished = { onNumChange(sliderPosition) },
-                valueRange = range,
-            )
-            sliderState.onValueChange = { sliderPosition = it.toInt() }
-            Slider(state = sliderState, modifier = Modifier.weight(8f))
-            Text(range.endInclusive.toInt().toString(), modifier = Modifier.weight(1f))
-        }
-    }
-}
-
-@Composable
-fun PasswordSlider(
-    modifier: Modifier = Modifier,
-    passwordLength: Int,
-    onLengthChange: (Int) -> Unit,
-) {
-    Column {
-        Text("Password Length: ")
-        //TODO: top of range configurable
-        val range = passwordLength.toFloat()..25f
-        Row(
-            modifier = modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Text(range.start.toInt().toString(), modifier = Modifier.weight(1f))
-            var sliderPosition by remember { mutableIntStateOf(passwordLength) }
-            val sliderState = rememberSliderState(
-                value = passwordLength.toFloat(),
-                steps = (range.endInclusive - range.start).toInt(),
-                onValueChangeFinished = { onLengthChange(sliderPosition) },
-                valueRange = range,
-            )
-            sliderState.onValueChange = { sliderPosition = it.toInt() }
-            Slider(state = sliderState, modifier = Modifier.weight(8f))
-            Text(range.endInclusive.toInt().toString(), modifier = Modifier.weight(1f))
-
         }
     }
 }
@@ -160,6 +102,7 @@ fun PasswordList(
             modifier = modifier
                 .fillMaxWidth()
                 .padding(vertical = 16.dp),
+            userScrollEnabled = false,
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -170,7 +113,6 @@ fun PasswordList(
     }
 
 }
-
 
 @Composable
 fun PasswordText(
@@ -186,16 +128,19 @@ fun PasswordText(
                 .align(Alignment.Center)
                 .clickable { selected = !selected },
             text = text,
+            autoSize = TextAutoSize.StepBased(minFontSize = 18.sp, maxFontSize = PasswordStyle.fontSize * 1.2),
             style = PasswordStyle,
         )
 
-        AnimatedVisibility(selected) {
+        AnimatedVisibility(
+            selected,
+            modifier = Modifier
+                .align(Alignment.CenterEnd)
+                .padding(end = 16.dp)
+        ) {
             Icon(
                 Icons.Outlined.ContentCopy, "Copy",
-                modifier = Modifier
-                    .align(Alignment.CenterEnd)
-                    .padding(end = 16.dp)
-                    .clickable { onCopyClick(text) },
+                modifier = Modifier.clickable { onCopyClick(text) },
             )
         }
     }

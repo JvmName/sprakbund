@@ -27,5 +27,4 @@ val SprakTypography = Typography(
 val PasswordStyle = baseline.headlineSmall.copy(
     fontFamily = FontFamily.Monospace,
     fontWeight = FontWeight.SemiBold,
-    fontFeatureSettings = "c2sc, smcp"
 )
