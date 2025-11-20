@@ -15,14 +15,19 @@ data class PasswordGeneratorScreen(
 
 @Immutable
 data class PasswordGeneratorState(
-    val passwords: List<String>,
+    val passwords: List<PasswordItem>,
     val passwordLength: Int,
     val passwordLengthRange: IntRange = 12..25,
     val compoundWord: Int,
     val compoundWordRange: IntRange = 1..5,
     val snackbarMessage: String?,
     val eventSink: (PasswordGeneratorEvent) -> Unit,
-) : CircuitUiState
+) : CircuitUiState {
+    @Immutable
+    data class PasswordItem(
+        val password: String,
+        val pwned: Boolean
+}
 
 sealed interface PasswordGeneratorEvent : CircuitUiEvent {
     data object Refresh : PasswordGeneratorEvent

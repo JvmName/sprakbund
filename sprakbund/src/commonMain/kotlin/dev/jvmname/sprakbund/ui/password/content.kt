@@ -3,8 +3,8 @@ package dev.jvmname.sprakbund.ui.password
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.displayCutoutPadding
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,12 +15,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -38,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.slack.circuit.codegen.annotations.CircuitInject
 import dev.jvmname.sprakbund.ui.common.IntSliderWithTextField
+import dev.jvmname.sprakbund.ui.password.PasswordGeneratorState.PasswordItem
 import dev.jvmname.sprakbund.ui.theme.PasswordStyle
 import dev.jvmname.sprakbund.ui.theme.SprakTheme
 import dev.jvmname.sprakbund.ui.theme.SprakTypography
@@ -93,7 +96,7 @@ fun PasswordGeneratorUi(state: PasswordGeneratorState, modifier: Modifier = Modi
 
 @Composable
 fun PasswordList(
-    passwords: List<String>,
+    passwords: List<PasswordItem>,
     modifier: Modifier = Modifier,
     onCopyClick: (password: String) -> Unit,
 ) {
@@ -106,8 +109,8 @@ fun PasswordList(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            items(passwords, key = { it }) {
-                PasswordText(it, onCopyClick = onCopyClick)
+            items(passwords, key = { it.password }) {
+                PasswordText(it.password, pwned = it.pwned, onCopyClick = onCopyClick)
             }
         }
     }
@@ -117,26 +120,35 @@ fun PasswordList(
 @Composable
 fun PasswordText(
     text: String,
+    pwned: Boolean,
     modifier: Modifier = Modifier,
     onCopyClick: (password: String) -> Unit,
 ) {
     var selected by remember { mutableStateOf(false) }
-
-    Box(modifier = Modifier.fillMaxWidth()) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         Text(
             modifier = modifier
-                .align(Alignment.Center)
                 .clickable { selected = !selected },
             text = text,
             autoSize = TextAutoSize.StepBased(minFontSize = 18.sp, maxFontSize = PasswordStyle.fontSize * 1.2),
             style = PasswordStyle,
         )
 
+        if (pwned) {
+            Icon(
+                Icons.Default.Clear,
+                "",
+                tint = MaterialTheme.colorScheme.error
+            )
+        }
+
         AnimatedVisibility(
             selected,
-            modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .padding(end = 16.dp)
+            modifier = Modifier.padding(end = 16.dp)
         ) {
             Icon(
                 Icons.Outlined.ContentCopy, "Copy",
@@ -153,12 +165,12 @@ fun PasswordGeneratorUiPreview() {
         val state = PasswordGeneratorState(
             snackbarMessage = "test",
             passwords = listOf(
-                "LoremIpsum",
-                "DolorSitAmet",
-                "Consectetur",
-                "AdipiscingElit",
-                "IntegerSodales",
-                "LaoreetCommodo"
+                PasswordItem("LoremIpsum", false),
+                PasswordItem("DolorSitAmet", false),
+                PasswordItem("Consectetur", true),
+                PasswordItem("AdipiscingElit", false),
+                PasswordItem("IntegerSodales", false),
+                PasswordItem("LaoreetCommodo", false)
             ),
             passwordLength = 12,
             compoundWord = 1,
