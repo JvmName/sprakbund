@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.composeCompiler) apply false
     alias(libs.plugins.kotlinMultiplatform) apply false
     alias(libs.plugins.kotlinParcelize) apply false
+    alias( libs.plugins.serialization) apply false
 
     alias(libs.plugins.metro) apply false
     alias(libs.plugins.poko) apply false

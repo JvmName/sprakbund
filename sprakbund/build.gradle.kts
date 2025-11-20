@@ -13,6 +13,7 @@ plugins {
     alias(libs.plugins.metro)
     alias(libs.plugins.poko)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.serialization)
 }
 
 kotlin {
@@ -43,6 +44,10 @@ kotlin {
                 implementation(libs.circuitx.overlays)
                 implementation(libs.circuitx.gestureNav)
                 implementation(libs.circuit.annotations)
+
+                implementation(libs.ktor.core)
+                implementation(libs.ktor.negotiation)
+                implementation(libs.crypto.sha1)
             }
         }
 
@@ -51,11 +56,12 @@ kotlin {
             implementation(libs.androidx.activity.compose)
             implementation(libs.compose.ui.tooling)
             implementation(libs.kotlinx.coroutines.android)
-
+            implementation(libs.ktor.client.okhttp)
         }
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutines.swing)
+            implementation(libs.ktor.client.okhttp)
         }
 
         configureEach {
@@ -66,6 +72,7 @@ kotlin {
                     "androidx.compose.material.ExperimentalMaterialApi",
                     "androidx.compose.material3.ExperimentalMaterial3Api",
                     "androidx.compose.ui.ExperimentalComposeUiApi",
+                    "kotlinx.serialization.ExperimentalSerializationApi",
                 )
                 freeCompilerArgs.add("-Xexpect-actual-classes")
             }

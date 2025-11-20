@@ -4,13 +4,13 @@ android-compileSdk = "36"
 android-minSdk = "24"
 android-targetSdk = "36"
 androidx-activity = "1.11.0"
-composeHotReload = "1.0.0-rc03"
+composeHotReload = "1.0.0-rc04"
 composeMultiplatform = "1.10.0-beta01"
 coroutines = "1.10.2"
 materialIconsExtended = "1.7.3"
 material3 = "1.9.0"
 kotlin = "2.2.21"
-
+ktor = "3.3.2"
 circuit = "0.31.0"
 
 [libraries]
@@ -31,10 +31,16 @@ material3 = { module = "org.jetbrains.compose.material3:material3", version.ref 
 runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "composeMultiplatform" }
 ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "composeMultiplatform" }
 ui-tooling-preview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "composeMultiplatform" }
+
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
 kotlinx-coroutines-swing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "coroutines" }
 
+ktor-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktor-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
+
+crypto-sha1 = { module = "org.kotlincrypto.hash:sha1", version="0.8.0" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
@@ -44,6 +50,7 @@ composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "composeMul
 composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinParcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
+serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 
 metro = "dev.zacsweers.metro:0.7.5"
 poko = "dev.drewhamilton.poko:0.20.1"
