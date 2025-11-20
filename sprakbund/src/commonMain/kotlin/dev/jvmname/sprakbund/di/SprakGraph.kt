@@ -7,11 +7,19 @@ import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 
 
 @DependencyGraph(scope = AppScope::class)
 interface SprakGraph {
     val circuit: Circuit
+
+    @Provides
+    @SingleIn(AppScope::class)
+    val scope: CoroutineScope
+        get() = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
     @Provides
     @SingleIn(AppScope::class)
