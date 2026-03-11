@@ -74,7 +74,10 @@ kotlin {
                     "androidx.compose.ui.ExperimentalComposeUiApi",
                     "kotlinx.serialization.ExperimentalSerializationApi",
                 )
-                freeCompilerArgs.add("-Xexpect-actual-classes")
+                freeCompilerArgs.addAll(
+                    "-Xexpect-actual-classes",
+                    "-Xcontext-sensitive-resolution",
+                )
             }
         }
 
@@ -139,6 +142,10 @@ compose.desktop {
 }
 
 ksp { arg("circuit.codegen.mode", "metro") }
+metro {
+    contributesAsInject = true
+    enableFullBindingGraphValidation = true
+}
 
 dependencies {
     add("kspCommonMainMetadata", libs.circuit.codegen)

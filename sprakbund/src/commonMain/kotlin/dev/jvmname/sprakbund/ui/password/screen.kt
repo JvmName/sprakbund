@@ -5,21 +5,23 @@ import com.slack.circuit.runtime.CircuitUiEvent
 import com.slack.circuit.runtime.CircuitUiState
 import com.slack.circuit.runtime.screen.Screen
 import dev.jvmname.sprakbund.parcel.CommonParcelize
+import dev.jvmname.sprakbund.ui.password.PasswordGeneratorPresenter.Companion.DEFAULT_NUM_WORDS
+import dev.jvmname.sprakbund.ui.password.PasswordGeneratorPresenter.Companion.DEFAULT_PASSWORD_LENGTH
 
 @CommonParcelize
 data class PasswordGeneratorScreen(
     val count: Int = 7,
-    val length: Int = 12,
-    val compoundWord: Int = 1
+    val length: Int = DEFAULT_PASSWORD_LENGTH,
+    val compoundWord: Int = DEFAULT_NUM_WORDS
 ) : Screen
 
 @Immutable
 data class PasswordGeneratorState(
     val passwords: List<PasswordItem>,
     val passwordLength: Int,
-    val passwordLengthRange: IntRange = 12..25,
+    val passwordLengthRange: IntRange,
     val compoundWord: Int,
-    val compoundWordRange: IntRange = 1..5,
+    val compoundWordRange: IntRange,
     val snackbarMessage: String?,
     val eventSink: (PasswordGeneratorEvent) -> Unit,
 ) : CircuitUiState {
@@ -27,6 +29,7 @@ data class PasswordGeneratorState(
     data class PasswordItem(
         val password: String,
         val pwned: Boolean
+    )
 }
 
 sealed interface PasswordGeneratorEvent : CircuitUiEvent {

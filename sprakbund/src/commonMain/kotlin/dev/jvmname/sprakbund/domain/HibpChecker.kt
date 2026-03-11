@@ -1,6 +1,7 @@
 package dev.jvmname.sprakbund.domain
 
 import androidx.compose.ui.util.fastAny
+import androidx.compose.ui.util.fastMap
 import dev.jvmname.sprakbund.network.HibpNetworkClient
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.CoroutineScope
@@ -8,15 +9,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import org.kotlincrypto.hash.sha1.SHA1
+import java.util.Locale
 
 @Inject
 class HibpChecker(
     private val client: HibpNetworkClient,
     private val scope: CoroutineScope
 ) {
-
     suspend fun checkPasswords(passwords: List<String>): Map<String, Boolean> {
-        val results = passwords.map { checkPwned(scope, it) }.awaitAll()
+        val results = passwords.fastMap { checkPwned(scope, it) }.awaitAll()
         return buildMap(passwords.size) {
             for (i in passwords.indices) {
                 put(passwords[i], results[i])
@@ -28,8 +29,8 @@ class HibpChecker(
         val hashed = with(SHA1()) {
             digest(password.encodeToByteArray()).toHexString()
         }
-        val lastHash = hashed.drop(5)
+        val lastHash = hashed.drop(5).uppercase(Locale.getDefault())
         val lines = client.getPwnedPassword(hashed)
-        lines.fastAny { it.hash == lastHash && it.count >= 1 }
+        lines.fastAny { it.hash == lastHash }
     }
 }

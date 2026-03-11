@@ -174,6 +174,8 @@ fun PasswordGeneratorUiPreview() {
             ),
             passwordLength = 12,
             compoundWord = 1,
+            passwordLengthRange = 7..25,
+            compoundWordRange = 1..5,
             eventSink = {},
         )
         PasswordGeneratorUi(state)

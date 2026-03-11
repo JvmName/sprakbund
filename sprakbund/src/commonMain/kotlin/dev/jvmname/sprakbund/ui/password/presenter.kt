@@ -1,6 +1,7 @@
 package dev.jvmname.sprakbund.ui.password
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -47,29 +48,36 @@ class PasswordGeneratorPresenter(
         var passwordLength by remember(screen) { mutableIntStateOf(screen.length) }
         var numWords by remember(screen) { mutableIntStateOf(screen.compoundWord) }
         var snackbarMessage: String? by remember { mutableStateOf(null) }
+
+        val validator = remember(passwordLength, numWords) {
+            validator(passwordLength, numWords)
+        }
+
         var isRefreshing by remember { mutableStateOf(false) }
         if (isRefreshing) {
             LaunchedEffect(Unit) {
-                _passwords.update { buildPasswordList(passwordCount, passwordLength, numWords) }
+                _passwords.update { buildPasswordList(passwordCount, validator.passwordLength, validator.compoundWord) }
                 isRefreshing = false
             }
         }
 
+
         val clipboard = LocalClipboard.current //todo this might make testing difficult
 
-        val passwords by remember(passwordCount, passwordLength, numWords) {
-            _passwords.update { buildPasswordList(passwordCount, passwordLength, numWords) }
+        val passwords by remember(passwordCount, validator.passwordLength, validator.compoundWord) {
+            _passwords.update { buildPasswordList(passwordCount, validator.passwordLength, validator.compoundWord) }
             _passwords.mapLatest { list ->
                 val map = checker.checkPasswords(list)
                 list.map { PasswordItem(password = it, pwned = map[it] ?: false) }
             }
-        }
-            .collectAsState(emptyList())
+        }.collectAsState(emptyList())
 
         return PasswordGeneratorState(
             passwords = passwords,
-            passwordLength = passwordLength,
-            compoundWord = numWords,
+            passwordLength = validator.passwordLength,
+            passwordLengthRange = validator.passwordLengthRange,
+            compoundWord = validator.compoundWord,
+            compoundWordRange = validator.compoundWordRange,
             snackbarMessage = snackbarMessage,
             eventSink = { event ->
                 when (event) {
@@ -82,14 +90,12 @@ class PasswordGeneratorPresenter(
                         }
                     }
 
-                    PasswordGeneratorEvent.Refresh -> {
-                        isRefreshing = true
-                    }
-
+                    PasswordGeneratorEvent.Refresh -> isRefreshing = true
                     PasswordGeneratorEvent.SnackbarShown -> snackbarMessage = null
                 }
-            }
-        )
+            },
+
+            )
     }
 
     private fun buildPasswordList(
@@ -109,6 +115,34 @@ class PasswordGeneratorPresenter(
                 generator.generate(length)
             }
         }.lowercase()
+    }
+
+    private fun validator(passwordLength: Int, compoundWord: Int) = GeneratorValidator(passwordLength, compoundWord)
+
+    @Immutable
+    private class GeneratorValidator(
+        passwordLength: Int,
+        compoundWord: Int
+    ) {
+        val passwordLengthRange: IntRange = when (compoundWord) {
+            1 -> DEFAULT_PASSWORD_LENGTH..MAX_PASSWORD_LENGTH
+            else -> {
+                val start = DEFAULT_PASSWORD_LENGTH - (compoundWord * 2 - 1)
+                start.coerceAtLeast(MIN_PASSWORD_LENGTH)..MAX_PASSWORD_LENGTH
+            }
+        }
+        val passwordLength = passwordLength.coerceAtLeast(passwordLengthRange.first)
+        val compoundWordRange: IntRange = MIN_NUM_WORDS..MAX_NUM_WORDS
+        val compoundWord = compoundWord.coerceAtLeast(compoundWordRange.first)
+    }
+
+    companion object {
+        const val DEFAULT_PASSWORD_LENGTH = 12
+        const val MIN_PASSWORD_LENGTH = 7
+        const val MAX_PASSWORD_LENGTH = 25
+        const val DEFAULT_NUM_WORDS = 1
+        const val MIN_NUM_WORDS = 1
+        const val MAX_NUM_WORDS = 5
     }
 
 }

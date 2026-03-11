@@ -4,7 +4,6 @@ package dev.jvmname.sprakbund.domain.pronounce
 
 import dev.zacsweers.metro.Inject
 import java.security.SecureRandom
-import kotlin.random.Random
 
 /** Original sources: https://www.multicians.org/thvv/gpw.js
  * Major changes:
@@ -62,8 +61,7 @@ class PronounceableGenerator(private val trigram: Trigram) {
             if (sum == 0) {
                 break //exit while-loop
             }
-//            val innerThreshold = random.nextDouble() * sum
-            val innerThreshold = Random.nextDouble() * sum
+            val innerThreshold = random.nextDouble() * sum
             sum = 0
             for (i in 0..<26) {
                 sum += trigram[c1, c2, i]
@@ -74,6 +72,7 @@ class PronounceableGenerator(private val trigram: Trigram) {
             }
             passwordLength++
         }
-        return password.toString()
+        return if (password.length >= length) password.toString()
+        else password.append(generate(length - password.length)).toString()
     }
 }
